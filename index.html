@@ -3,131 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>⚽ Pro Football Arena | 3D Realistic Soccer</title>
+    <title>⚡ eFootball Style | 3D Soccer Game</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
             font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
-            touch-action: none;
             background: #000;
+            touch-action: none;
         }
-        #info {
+        /* HUD - Professional Scoreboard */
+        #hud {
             position: absolute;
             top: 20px;
-            left: 20px;
-            color: white;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 12px;
-            z-index: 10;
-            pointer-events: none;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        #scoreboard {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(12px);
-            padding: 8px 24px;
-            border-radius: 60px;
-            display: flex;
-            gap: 40px;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            font-family: monospace;
-            letter-spacing: 2px;
-            z-index: 10;
-            border-bottom: 2px solid #ffd700;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        .team {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        .team-name {
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-        .blue .team-name { color: #3a86ff; }
-        .red .team-name { color: #e63946; }
-        .score-num {
-            font-size: 28px;
-            font-weight: 800;
-            color: #ffd700;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        #controls {
-            position: absolute;
-            bottom: 20px;
             left: 0;
             right: 0;
             display: flex;
             justify-content: center;
-            gap: 15px;
-            padding: 12px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(16px);
             z-index: 10;
-            flex-wrap: wrap;
-            pointer-events: auto;
+            pointer-events: none;
         }
-        button {
-            background: radial-gradient(circle at 30% 20%, #2c2c3a, #1a1a2a);
-            border: none;
+        .score-panel {
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 8px 30px;
+            display: flex;
+            gap: 40px;
+            border-bottom: 3px solid #ffd700;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .team-score {
+            text-align: center;
             color: white;
             font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 40px;
+        }
+        .team-name {
             font-size: 14px;
-            box-shadow: 0 4px 0 #0a0a15;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .score-number {
+            font-size: 32px;
+            font-family: monospace;
+            font-weight: 800;
+            color: #ffd700;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .vs {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        /* Action Buttons */
+        .action-buttons {
+            position: absolute;
+            bottom: 25px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 20;
+        }
+        .action-btn {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: none;
+            background: radial-gradient(circle at 30% 30%, #2c2c3a, #1a1a2a);
+            box-shadow: 0 6px 0 #0a0a15;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
             cursor: pointer;
-            transition: 0.05s linear;
+            transition: 0.03s linear;
             touch-action: manipulation;
-            letter-spacing: 0.5px;
+            font-family: monospace;
         }
-        button:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #0a0a15;
+        .action-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #0a0a15;
         }
-        .sprint { background: radial-gradient(circle at 30% 20%, #ffd700, #d4a017); color: #1a1a2a; }
-        .shoot { background: radial-gradient(circle at 30% 20%, #e63946, #9b111e); }
-        .pass { background: radial-gradient(circle at 30% 20%, #2ecc71, #1a6b3a); }
-        @media (max-width: 600px) {
-            button { padding: 6px 14px; font-size: 12px; }
-            #scoreboard { padding: 4px 16px; gap: 20px; }
-            .score-num { font-size: 22px; }
+        .shoot { background: radial-gradient(circle at 30% 30%, #e63946, #9b111e); }
+        .pass { background: radial-gradient(circle at 30% 30%, #2ecc71, #1a6b3a); }
+        .sprint { background: radial-gradient(circle at 30% 30%, #ffd700, #d4a017); color: #1a1a2a; position: absolute; bottom: 25px; left: 20px; width: 65px; height: 65px; border-radius: 50%; }
+        .sprint:active { transform: translateY(4px); }
+        /* Mini-map indicator (fake) */
+        #possession {
+            position: absolute;
+            bottom: 20px;
+            left: 100px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 12px;
+            border-radius: 30px;
+            color: #ddd;
+            font-size: 11px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 20;
+        }
+        @media (max-width: 700px) {
+            .action-btn { width: 55px; height: 55px; font-size: 12px; }
+            .sprint { width: 55px; height: 55px; left: 15px; }
+            .score-number { font-size: 24px; }
+            .team-name { font-size: 11px; }
+        }
+        @keyframes goalFlash {
+            0% { background: rgba(255,215,0,0.5); }
+            100% { background: transparent; }
+        }
+        .goal-effect {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            animation: goalFlash 0.6s ease-out;
+            z-index: 15;
         }
     </style>
 </head>
 <body>
-    <div id="info">🏆 PRO FOOTBALL ARENA | Drag on pitch to move | Sprint + Shoot = Power</div>
-    <div id="scoreboard">
-        <div class="team blue">
-            <span class="team-name">BLUE FC</span>
-            <span class="score-num" id="scoreHome">0</span>
-        </div>
-        <div style="margin-top: 8px;">vs</div>
-        <div class="team red">
-            <span class="team-name">RED FC</span>
-            <span class="score-num" id="scoreAway">0</span>
+    <div id="hud">
+        <div class="score-panel">
+            <div class="team-score">
+                <div class="team-name" style="color:#3a86ff;">MADRID</div>
+                <div class="score-number" id="scoreHome">0</div>
+            </div>
+            <div class="vs">vs</div>
+            <div class="team-score">
+                <div class="team-name" style="color:#e63946;">BARÇA</div>
+                <div class="score-number" id="scoreAway">0</div>
+            </div>
         </div>
     </div>
-    <div id="controls">
-        <button id="sprintBtn" class="sprint">⚡ SPRINT</button>
-        <button id="passBtn" class="pass">↗️ PASS</button>
-        <button id="shootBtn" class="shoot">🎯 SHOOT</button>
-    </div>
+    <div id="possession">⚽ BALL POSSESSION: HOME</div>
+    <button class="action-btn shoot" id="shootBtn">⚡ SHOT</button>
+    <button class="action-btn pass" id="passBtn">↗️ PASS</button>
+    <button class="action-btn sprint" id="sprintBtn">🏃 SPRINT</button>
 
-    <!-- Import Three.js core and add-ons -->
+    <!-- Import Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -139,27 +152,24 @@
 
     <script type="module">
         import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-
-        // --- setup scene, camera, renderers ---
+        
+        // --- setup ---
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x071a0e);
-        scene.fog = new THREE.FogExp2(0x071a0e, 0.008);
+        scene.background = new THREE.Color(0x050b10);
+        scene.fog = new THREE.FogExp2(0x050b10, 0.003);
         
-        // Perspective camera for 3D
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 7, 14);
-        camera.lookAt(0, 0, 0);
+        // Camera (broadcast dynamic)
+        const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 6.5, 14);
         
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
         
-        // CSS2 renderer for player names
         const labelRenderer = new CSS2DRenderer();
         labelRenderer.setSize(window.innerWidth, window.innerHeight);
         labelRenderer.domElement.style.position = 'absolute';
@@ -168,230 +178,228 @@
         labelRenderer.domElement.style.pointerEvents = 'none';
         document.body.appendChild(labelRenderer.domElement);
         
-        // --- lighting (realistic stadium) ---
-        // Ambient
-        const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
-        scene.add(ambientLight);
-        // Main directional light (sun)
-        const mainLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
-        mainLight.position.set(5, 12, 3);
+        // --- Lighting (stadium quality) ---
+        const ambient = new THREE.AmbientLight(0x404060, 0.55);
+        scene.add(ambient);
+        const mainLight = new THREE.DirectionalLight(0xfff5e0, 1.3);
+        mainLight.position.set(5, 12, 4);
         mainLight.castShadow = true;
         mainLight.receiveShadow = true;
         mainLight.shadow.mapSize.width = 1024;
         mainLight.shadow.mapSize.height = 1024;
         mainLight.shadow.camera.near = 0.5;
-        mainLight.shadow.camera.far = 25;
-        mainLight.shadow.camera.left = -10;
-        mainLight.shadow.camera.right = 10;
-        mainLight.shadow.camera.top = 10;
-        mainLight.shadow.camera.bottom = -10;
+        mainLight.shadow.camera.far = 20;
         scene.add(mainLight);
-        // Fill light from below (pitch reflection)
-        const fillLight = new THREE.PointLight(0x88aa88, 0.4);
-        fillLight.position.set(0, 1, 0);
+        const fillLight = new THREE.PointLight(0x88aaff, 0.45);
+        fillLight.position.set(0, 4, 0);
         scene.add(fillLight);
-        // Back rim light
-        const rimLight = new THREE.PointLight(0xffaa66, 0.5);
-        rimLight.position.set(-3, 5, -5);
-        scene.add(rimLight);
-        // Stadium flood lights (multiple)
+        const backLight = new THREE.PointLight(0xffaa66, 0.5);
+        backLight.position.set(-3, 5, -6);
+        scene.add(backLight);
+        // Stadium floodlights
         for (let i = -1; i <= 1; i++) {
-            const flood = new THREE.PointLight(0xffcc88, 0.8, 20);
-            flood.position.set(i * 6, 5, 12);
-            scene.add(flood);
+            const light = new THREE.PointLight(0xffcc88, 0.7, 25);
+            light.position.set(i * 7, 6, 13);
+            scene.add(light);
         }
         
-        // --- pitch (professional turf) ---
-        const pitchWidth = 16;   // Z axis
-        const pitchLength = 28;  // X axis
+        // --- Pitch (realistic grass) ---
+        const fieldW = 16, fieldL = 28;
         const grassMat = new THREE.MeshStandardMaterial({ color: 0x2a8a3a, roughness: 0.7, metalness: 0.05 });
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(pitchLength, pitchWidth), grassMat);
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(fieldL, fieldW), grassMat);
         ground.rotation.x = -Math.PI / 2;
         ground.position.y = -0.05;
         ground.receiveShadow = true;
         scene.add(ground);
         
-        // Grass blades (simple but adds depth)
-        const bladeGeom = new THREE.CylinderGeometry(0.04, 0.06, 0.1, 3);
-        const bladeMat = new THREE.MeshStandardMaterial({ color: 0x3aaa4a });
-        for (let i = 0; i < 1200; i++) {
+        // Grass blades
+        const bladeGeom = new THREE.CylinderGeometry(0.04, 0.07, 0.12, 4);
+        const bladeMat = new THREE.MeshStandardMaterial({ color: 0x44bb54 });
+        for (let i = 0; i < 1800; i++) {
             const blade = new THREE.Mesh(bladeGeom, bladeMat);
-            blade.position.x = (Math.random() - 0.5) * pitchLength;
-            blade.position.z = (Math.random() - 0.5) * pitchWidth;
-            blade.position.y = -0.03;
+            blade.position.x = (Math.random() - 0.5) * (fieldL - 1);
+            blade.position.z = (Math.random() - 0.5) * (fieldW - 1);
+            blade.position.y = -0.04;
             blade.castShadow = false;
-            blade.receiveShadow = false;
             scene.add(blade);
         }
         
-        // Pitch markings
-        const lineMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const lineGeom = new THREE.BoxGeometry(0.08, 0.05, 0.08);
-        // Center circle (line loop)
+        // Pitch markings (white lines)
+        const lineMatWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const makeLine = (x1, z1, x2, z2, thickness = 0.08) => {
+            const dx = x2 - x1, dz = z2 - z1;
+            const length = Math.hypot(dx, dz);
+            const box = new THREE.Mesh(new THREE.BoxGeometry(thickness, 0.05, length), lineMatWhite);
+            box.position.set((x1 + x2) / 2, 0.02, (z1 + z2) / 2);
+            box.rotation.y = Math.atan2(dz, dx);
+            scene.add(box);
+        };
+        // Half line
+        makeLine(0, -fieldW/2, 0, fieldW/2);
+        // Center circle (ring)
         const circlePoints = [];
-        const radius = 3.2;
+        const radius = 3.0;
         for (let i = 0; i <= 64; i++) {
-            const angle = (i / 64) * Math.PI * 2;
-            const x = Math.cos(angle) * radius;
-            const z = Math.sin(angle) * radius;
-            circlePoints.push(new THREE.Vector3(x, 0.02, z));
+            const ang = (i / 64) * Math.PI * 2;
+            circlePoints.push(new THREE.Vector3(Math.cos(ang) * radius, 0.02, Math.sin(ang) * radius));
         }
         const circleLine = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(circlePoints), new THREE.LineBasicMaterial({ color: 0xffffff }));
         scene.add(circleLine);
-        
-        // Half line
-        const halfLineGeom = new THREE.BoxGeometry(0.08, 0.05, pitchWidth);
-        const halfLine = new THREE.Mesh(halfLineGeom, lineMat);
-        halfLine.position.set(0, 0.02, 0);
-        scene.add(halfLine);
-        
+        // Penalty areas
+        const penDepth = 4.0, penWidth = 5.2;
+        const penLeft = [[-fieldL/2, -penWidth/2], [-fieldL/2 + penDepth, -penWidth/2], [-fieldL/2 + penDepth, penWidth/2], [-fieldL/2, penWidth/2]];
+        for (let i = 0; i < penLeft.length; i++) {
+            const p1 = penLeft[i];
+            const p2 = penLeft[(i+1)%penLeft.length];
+            makeLine(p1[0], p1[1], p2[0], p2[1]);
+        }
+        const penRight = [[fieldL/2, -penWidth/2], [fieldL/2 - penDepth, -penWidth/2], [fieldL/2 - penDepth, penWidth/2], [fieldL/2, penWidth/2]];
+        for (let i = 0; i < penRight.length; i++) {
+            const p1 = penRight[i];
+            const p2 = penRight[(i+1)%penRight.length];
+            makeLine(p1[0], p1[1], p2[0], p2[1]);
+        }
         // Center spot
         const centerSpot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
         centerSpot.position.set(0, 0.02, 0);
         scene.add(centerSpot);
         
-        // Penalty areas
-        const penaltyDepth = 4.2;
-        const penaltyWidth = 5.5;
-        const createRectLine = (x, z, width, depth, color = 0xffffff) => {
-            const points = [
-                new THREE.Vector3(x - width/2, 0.02, z - depth/2),
-                new THREE.Vector3(x + width/2, 0.02, z - depth/2),
-                new THREE.Vector3(x + width/2, 0.02, z + depth/2),
-                new THREE.Vector3(x - width/2, 0.02, z + depth/2),
-                new THREE.Vector3(x - width/2, 0.02, z - depth/2)
-            ];
-            const geom = new THREE.BufferGeometry().setFromPoints(points);
-            return new THREE.Line(geom, new THREE.LineBasicMaterial({ color }));
-        };
-        scene.add(createRectLine(-pitchLength/2 + penaltyDepth, 0, penaltyWidth, penaltyDepth));
-        scene.add(createRectLine(pitchLength/2 - penaltyDepth, 0, penaltyWidth, penaltyDepth));
-        
-        // Goal areas (smaller)
-        const goalAreaDepth = 2.2;
-        const goalAreaWidth = 3.5;
-        scene.add(createRectLine(-pitchLength/2 + 1.8, 0, goalAreaWidth, goalAreaDepth, 0xdddddd));
-        scene.add(createRectLine(pitchLength/2 - 1.8, 0, goalAreaWidth, goalAreaDepth, 0xdddddd));
-        
-        // Goals (3D with net)
-        const goalMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.7, roughness: 0.3 });
+        // Goals (3D with red/white nets)
+        const goalMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.8, roughness: 0.2 });
+        const leftGoalGroup = new THREE.Group();
+        const rightGoalGroup = new THREE.Group();
         const postGeom = new THREE.BoxGeometry(0.12, 2.2, 0.12);
         const crossGeom = new THREE.BoxGeometry(2.8, 0.12, 0.12);
-        // Left goal
-        const leftPostL = new THREE.Mesh(postGeom, goalMat); leftPostL.position.set(-pitchLength/2 - 0.08, 1.0, -0.9); scene.add(leftPostL);
-        const leftPostR = new THREE.Mesh(postGeom, goalMat); leftPostR.position.set(-pitchLength/2 - 0.08, 1.0, 0.9); scene.add(leftPostR);
-        const leftCross = new THREE.Mesh(crossGeom, goalMat); leftCross.position.set(-pitchLength/2 - 0.08, 2.05, 0); scene.add(leftCross);
-        // net (transparent grid)
-        const netMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, wireframe: true, transparent: true, opacity: 0.35 });
-        const netGeom = new THREE.BoxGeometry(0.05, 2.0, 2.2);
+        // left
+        const lpL = new THREE.Mesh(postGeom, goalMat); lpL.position.set(-fieldL/2 - 0.08, 1.0, -0.9);
+        const lpR = new THREE.Mesh(postGeom, goalMat); lpR.position.set(-fieldL/2 - 0.08, 1.0, 0.9);
+        const lCross = new THREE.Mesh(crossGeom, goalMat); lCross.position.set(-fieldL/2 - 0.08, 2.05, 0);
+        leftGoalGroup.add(lpL, lpR, lCross);
+        scene.add(leftGoalGroup);
+        // right
+        const rpL = new THREE.Mesh(postGeom, goalMat); rpL.position.set(fieldL/2 + 0.08, 1.0, -0.9);
+        const rpR = new THREE.Mesh(postGeom, goalMat); rpR.position.set(fieldL/2 + 0.08, 1.0, 0.9);
+        const rCross = new THREE.Mesh(crossGeom, goalMat); rCross.position.set(fieldL/2 + 0.08, 2.05, 0);
+        rightGoalGroup.add(rpL, rpR, rCross);
+        scene.add(rightGoalGroup);
+        // nets
+        const netMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, wireframe: true, transparent: true, opacity: 0.4 });
         for (let i = -1; i <= 1; i++) {
-            const netStrip = new THREE.Mesh(netGeom, netMat);
-            netStrip.position.set(-pitchLength/2 - 0.4, 1.0, i * 1.1);
+            const netStrip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.0, 2.2), netMat);
+            netStrip.position.set(-fieldL/2 - 0.45, 1.0, i * 1.1);
             scene.add(netStrip);
-        }
-        // Right goal
-        const rightPostL = new THREE.Mesh(postGeom, goalMat); rightPostL.position.set(pitchLength/2 + 0.08, 1.0, -0.9); scene.add(rightPostL);
-        const rightPostR = new THREE.Mesh(postGeom, goalMat); rightPostR.position.set(pitchLength/2 + 0.08, 1.0, 0.9); scene.add(rightPostR);
-        const rightCross = new THREE.Mesh(crossGeom, goalMat); rightCross.position.set(pitchLength/2 + 0.08, 2.05, 0); scene.add(rightCross);
-        for (let i = -1; i <= 1; i++) {
-            const netStrip = new THREE.Mesh(netGeom, netMat);
-            netStrip.position.set(pitchLength/2 + 0.4, 1.0, i * 1.1);
-            scene.add(netStrip);
+            const netStripR = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.0, 2.2), netMat);
+            netStripR.position.set(fieldL/2 + 0.45, 1.0, i * 1.1);
+            scene.add(netStripR);
         }
         
-        // --- Stadium stands (immersive) ---
-        const standMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.6 });
-        const seatMat = new THREE.MeshStandardMaterial({ color: 0x4a4a5a });
+        // --- Stadium (immersive) ---
+        const standMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.7 });
         for (let side = -1; side <= 1; side += 2) {
-            for (let row = 0; row < 6; row++) {
-                const tier = new THREE.BoxGeometry(pitchLength + 3 + row * 0.5, 0.4, 1.8);
-                const standPiece = new THREE.Mesh(tier, standMat);
-                const offsetZ = side * (pitchWidth/2 + 1.2 + row * 0.2);
-                standPiece.position.set(0, -0.2 + row * 0.35, offsetZ);
-                standPiece.castShadow = true;
-                scene.add(standPiece);
-                // seats
-                for (let i = -12; i <= 12; i++) {
-                    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.12, 0.3), seatMat);
-                    seat.position.set(i * 1.2, -0.05 + row * 0.35, offsetZ + (side * 0.8));
-                    seat.castShadow = true;
-                    scene.add(seat);
-                }
+            for (let row = 0; row < 7; row++) {
+                const tier = new THREE.BoxGeometry(fieldL + 2.5 + row * 0.4, 0.35, 2.2);
+                const stand = new THREE.Mesh(tier, standMat);
+                stand.position.set(0, -0.2 + row * 0.38, side * (fieldW/2 + 1.3 + row * 0.2));
+                stand.castShadow = true;
+                scene.add(stand);
             }
         }
         // End stands
         for (let end = -1; end <= 1; end += 2) {
-            for (let row = 0; row < 5; row++) {
-                const tier = new THREE.BoxGeometry(2.5, 0.4, pitchWidth + 2);
-                const standPiece = new THREE.Mesh(tier, standMat);
-                const offsetX = end * (pitchLength/2 + 1.5 + row * 0.3);
-                standPiece.position.set(offsetX, -0.2 + row * 0.35, 0);
-                standPiece.castShadow = true;
-                scene.add(standPiece);
+            for (let row = 0; row < 6; row++) {
+                const tier = new THREE.BoxGeometry(2.8, 0.35, fieldW + 1.5);
+                const stand = new THREE.Mesh(tier, standMat);
+                stand.position.set(end * (fieldL/2 + 1.6 + row * 0.25), -0.2 + row * 0.38, 0);
+                stand.castShadow = true;
+                scene.add(stand);
             }
         }
-        
-        // Crowd (colorful dots)
-        const crowdColors = [0xe63946, 0x3a86ff, 0xffd700, 0x2ecc71, 0x9b59b6];
-        for (let i = 0; i < 600; i++) {
-            const person = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.45, 0.25), new THREE.MeshStandardMaterial({ color: crowdColors[Math.floor(Math.random() * crowdColors.length)] }));
-            let angle = Math.random() * Math.PI * 2;
-            let radius = pitchLength/2 + 1.8 + Math.random() * 2;
-            person.position.x = Math.cos(angle) * radius;
-            person.position.z = Math.sin(angle) * radius * 0.9;
-            person.position.y = -0.2;
+        // Crowd (colored)
+        const crowdCol = [0xe63946, 0x3a86ff, 0xffd700, 0x2ecc71, 0x9b59b6];
+        for (let i = 0; i < 1200; i++) {
+            const person = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.5, 0.28), new THREE.MeshStandardMaterial({ color: crowdCol[Math.floor(Math.random() * crowdCol.length)] }));
+            let ang = Math.random() * Math.PI * 2;
+            let rad = fieldL/2 + 1.6 + Math.random() * 2.2;
+            person.position.x = Math.cos(ang) * rad;
+            person.position.z = Math.sin(ang) * rad * 0.9;
+            person.position.y = -0.25;
             scene.add(person);
         }
         
-        // --- Ball (perfect sphere with texture-like panels) ---
-        const ballGeom = new THREE.SphereGeometry(0.32, 64, 64);
-        const ballMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25, metalness: 0.05, emissive: 0x222222 });
-        const ball = new THREE.Mesh(ballGeom, ballMat);
+        // --- Ball (high quality sphere with seams) ---
+        const ballGeom = new THREE.SphereGeometry(0.34, 128, 128);
+        const ballMatTex = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.05 });
+        const ball = new THREE.Mesh(ballGeom, ballMatTex);
         ball.castShadow = true;
         ball.receiveShadow = true;
         scene.add(ball);
-        // Add black panel details using a simple pattern (5 black stripes)
-        const stripeMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-        for (let i = 0; i < 5; i++) {
-            const stripe = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.03, 32, 64), stripeMat);
-            stripe.rotation.x = Math.PI / 2;
-            stripe.rotation.z = (i / 5) * Math.PI * 2;
-            stripe.position.y = 0.01;
-            ball.add(stripe);
+        // Add black panel lines
+        const stripeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        for (let i = 0; i < 6; i++) {
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.035, 64, 100), stripeMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.rotation.z = (i / 6) * Math.PI * 2;
+            ring.position.y = 0.01;
+            ball.add(ring);
         }
         
-        // --- Player model (detailed) ---
-        function createPlayer(color, number, x, z) {
+        // --- Player Model (detailed, with jersey, shorts, hair) ---
+        function createPlayer(color, number, x, z, teamSide) {
             const group = new THREE.Group();
             // Body
-            const bodyGeom = new THREE.CylinderGeometry(0.32, 0.36, 0.85, 12);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.1 });
-            const body = new THREE.Mesh(bodyGeom, bodyMat);
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.38, 0.9, 12), new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.1 }));
             body.castShadow = true;
-            body.position.y = 0.42;
+            body.position.y = 0.45;
             group.add(body);
+            // Shorts
+            const shorts = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.4, 0.35, 8), new THREE.MeshStandardMaterial({ color: color, roughness: 0.5 }));
+            shorts.position.y = 0.15;
+            shorts.castShadow = true;
+            group.add(shorts);
             // Head
-            const headGeom = new THREE.SphereGeometry(0.28, 24, 24);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0xf5c9a0, roughness: 0.2 });
-            const head = new THREE.Mesh(headGeom, headMat);
-            head.position.y = 0.85;
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), new THREE.MeshStandardMaterial({ color: 0xf5c9a0, roughness: 0.2 }));
+            head.position.y = 0.92;
             head.castShadow = true;
             group.add(head);
             // Hair
-            const hairGeom = new THREE.SphereGeometry(0.29, 16, 16);
-            const hairMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a });
-            const hair = new THREE.Mesh(hairGeom, hairMat);
-            hair.position.y = 0.98;
+            const hair = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 24), new THREE.MeshStandardMaterial({ color: teamSide === 'home' ? 0x2a1a0a : 0x1a0a00 }));
+            hair.position.y = 1.02;
             hair.scale.set(1, 0.35, 1);
             group.add(hair);
             // Eyes
             const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2a });
-            const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeMat);
-            leftEye.position.set(-0.1, 0.92, 0.28);
-            group.add(leftEye);
-            const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeMat);
-            rightEye.position.set(0.1, 0.92, 0.28);
-            group.add(rightEye);
+            const leye = new THREE.Mesh(new THREE.SphereGeometry(0.08, 24, 24), eyeMat);
+            leye.position.set(-0.11, 0.98, 0.3);
+            group.add(leye);
+            const reye = new THREE.Mesh(new THREE.SphereGeometry(0.08, 24, 24), eyeMat);
+            reye.position.set(0.11, 0.98, 0.3);
+            group.add(reye);
+            // Eyebrows
+            const browMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a });
+            const lbrow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 0.05), browMat);
+            lbrow.position.set(-0.12, 1.03, 0.31);
+            group.add(lbrow);
+            const rbrow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 0.05), browMat);
+            rbrow.position.set(0.12, 1.03, 0.31);
+            group.add(rbrow);
+            // Arms (simple cylinders)
+            const armMat = new THREE.MeshStandardMaterial({ color: color });
+            const larm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.55, 6), armMat);
+            larm.position.set(-0.45, 0.7, 0);
+            larm.rotation.z = 0.3;
+            group.add(larm);
+            const rarm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.55, 6), armMat);
+            rarm.position.set(0.45, 0.7, 0);
+            rarm.rotation.z = -0.3;
+            group.add(rarm);
+            // Legs
+            const legMat = new THREE.MeshStandardMaterial({ color: color });
+            const lleg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.5, 6), legMat);
+            lleg.position.set(-0.2, 0.1, 0);
+            group.add(lleg);
+            const rleg = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.5, 6), legMat);
+            rleg.position.set(0.2, 0.1, 0);
+            group.add(rleg);
             // Jersey number (CSS2D)
             const div = document.createElement('div');
             div.textContent = number;
@@ -399,332 +407,331 @@
             div.style.fontSize = '14px';
             div.style.fontWeight = 'bold';
             div.style.textShadow = '1px 1px 0 black';
-            div.style.background = 'rgba(0,0,0,0.5)';
-            div.style.padding = '2px 5px';
-            div.style.borderRadius = '20px';
+            div.style.background = 'rgba(0,0,0,0.6)';
+            div.style.padding = '2px 6px';
+            div.style.borderRadius = '30px';
             div.style.border = `1px solid ${color === 0x3a86ff ? '#3a86ff' : '#e63946'}`;
             const label = new CSS2DObject(div);
-            label.position.set(0, 1.05, 0);
+            label.position.set(0, 1.1, 0);
             group.add(label);
             
             group.position.set(x, 0, z);
-            group.userData = { isPlayer: true, team: color === 0x3a86ff ? 'home' : 'away', speed: 2.0 };
+            group.userData = { team: teamSide, number, speed: 2.1, origX: x, origZ: z };
             return group;
         }
         
-        // --- Create teams: 11 players each ---
-        const players = [];
-        // Home (blue) positions: GK, 4 DEF, 4 MID, 3 ATT
-        const homePositions = [
-            { x: -pitchLength/2 + 1.5, z: 0 },          // GK
-            { x: -pitchLength/2 + 4, z: -4.5 }, { x: -pitchLength/2 + 4, z: -1.5 }, { x: -pitchLength/2 + 4, z: 1.5 }, { x: -pitchLength/2 + 4, z: 4.5 }, // DEF
-            { x: -pitchLength/2 + 8, z: -5 }, { x: -pitchLength/2 + 8, z: -2 }, { x: -pitchLength/2 + 8, z: 2 }, { x: -pitchLength/2 + 8, z: 5 }, // MID
-            { x: -pitchLength/2 + 12, z: -3.5 }, { x: -pitchLength/2 + 12, z: 0 }, { x: -pitchLength/2 + 12, z: 3.5 }  // ATT
+        // --- Team formations ---
+        const homePos = [
+            { x: -fieldL/2 + 1.8, z: 0 },          // GK
+            { x: -fieldL/2 + 4.5, z: -4.2 }, { x: -fieldL/2 + 4.5, z: -1.2 }, { x: -fieldL/2 + 4.5, z: 1.2 }, { x: -fieldL/2 + 4.5, z: 4.2 }, // DEF
+            { x: -fieldL/2 + 8.5, z: -4.8 }, { x: -fieldL/2 + 8.5, z: -1.5 }, { x: -fieldL/2 + 8.5, z: 1.5 }, { x: -fieldL/2 + 8.5, z: 4.8 }, // MID
+            { x: -fieldL/2 + 13, z: -3 }, { x: -fieldL/2 + 13, z: 0 }, { x: -fieldL/2 + 13, z: 3 }   // ATT
         ];
-        const awayPositions = [
-            { x: pitchLength/2 - 1.5, z: 0 },
-            { x: pitchLength/2 - 4, z: -4.5 }, { x: pitchLength/2 - 4, z: -1.5 }, { x: pitchLength/2 - 4, z: 1.5 }, { x: pitchLength/2 - 4, z: 4.5 },
-            { x: pitchLength/2 - 8, z: -5 }, { x: pitchLength/2 - 8, z: -2 }, { x: pitchLength/2 - 8, z: 2 }, { x: pitchLength/2 - 8, z: 5 },
-            { x: pitchLength/2 - 12, z: -3.5 }, { x: pitchLength/2 - 12, z: 0 }, { x: pitchLength/2 - 12, z: 3.5 }
+        const awayPos = [
+            { x: fieldL/2 - 1.8, z: 0 },
+            { x: fieldL/2 - 4.5, z: -4.2 }, { x: fieldL/2 - 4.5, z: -1.2 }, { x: fieldL/2 - 4.5, z: 1.2 }, { x: fieldL/2 - 4.5, z: 4.2 },
+            { x: fieldL/2 - 8.5, z: -4.8 }, { x: fieldL/2 - 8.5, z: -1.5 }, { x: fieldL/2 - 8.5, z: 1.5 }, { x: fieldL/2 - 8.5, z: 4.8 },
+            { x: fieldL/2 - 13, z: -3 }, { x: fieldL/2 - 13, z: 0 }, { x: fieldL/2 - 13, z: 3 }
         ];
         
-        const homePlayers = [];
-        const awayPlayers = [];
-        for (let i = 0; i < homePositions.length; i++) {
-            const p = createPlayer(0x3a86ff, (i+1).toString(), homePositions[i].x, homePositions[i].z);
+        const homeTeam = [], awayTeam = [];
+        for (let i = 0; i < homePos.length; i++) {
+            const p = createPlayer(0x3a86ff, (i+1).toString(), homePos[i].x, homePos[i].z, 'home');
             scene.add(p);
-            homePlayers.push(p);
-            players.push(p);
+            homeTeam.push(p);
         }
-        for (let i = 0; i < awayPositions.length; i++) {
-            const p = createPlayer(0xe63946, (i+1).toString(), awayPositions[i].x, awayPositions[i].z);
+        for (let i = 0; i < awayPos.length; i++) {
+            const p = createPlayer(0xe63946, (i+1).toString(), awayPos[i].x, awayPos[i].z, 'away');
             scene.add(p);
-            awayPlayers.push(p);
-            players.push(p);
+            awayTeam.push(p);
         }
+        const allPlayers = [...homeTeam, ...awayTeam];
         
-        // Current controlled player (closest to ball initially)
-        let controlledPlayer = homePlayers[5]; // midfielder
+        // Controlled player (start with home ATT)
+        let controlled = allPlayers[9]; // home attacker
         let sprinting = false;
-        let shootCooldown = 0;
+        let shootCd = 0;
         
-        // Ball physics state
+        // Ball physics
         let ballPos = { x: 0, z: 0 };
         let ballVel = { x: 0, z: 0 };
-        ball.position.set(0, 0.32, 0);
+        ball.position.set(0, 0.34, 0);
         
-        // Scores
         let homeScore = 0, awayScore = 0;
-        const scoreHomeEl = document.getElementById('scoreHome');
-        const scoreAwayEl = document.getElementById('scoreAway');
+        const scoreHome = document.getElementById('scoreHome');
+        const scoreAway = document.getElementById('scoreAway');
+        const possessionDiv = document.getElementById('possession');
         
-        // Touch/mouse movement
+        // Touch/mouse drag to move controlled player
+        let dragTarget = null;
         let isDragging = false;
-        let targetWorld = { x: 0, z: 0 };
         
-        function getWorldCoordsFromTouch(clientX, clientY) {
+        function getGroundFromScreen(clientX, clientY) {
             const rect = renderer.domElement.getBoundingClientRect();
             const mouseX = ((clientX - rect.left) / rect.width) * 2 - 1;
             const mouseY = -((clientY - rect.top) / rect.height) * 2 + 1;
-            const vector = new THREE.Vector3(mouseX, mouseY, 0.5);
-            vector.unproject(camera);
-            const dir = vector.sub(camera.position).normalize();
-            const t = -camera.position.y / dir.y;
-            const point = camera.position.clone().add(dir.multiplyScalar(t));
-            return { x: point.x, z: point.z };
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera);
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+            const point = raycaster.ray.intersectPlane(plane, new THREE.Vector3());
+            if (point) return { x: point.x, z: point.z };
+            return null;
         }
         
         renderer.domElement.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            const world = getWorldCoordsFromTouch(touch.clientX, touch.clientY);
-            // find nearest player to select
-            let closest = null;
-            let closestDist = 1.5;
-            for (let p of players) {
-                const dist = Math.hypot(p.position.x - world.x, p.position.z - world.z);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closest = p;
+            const world = getGroundFromScreen(touch.clientX, touch.clientY);
+            if (world) {
+                // Check if we tapped a player to select
+                let selected = null;
+                let minDist = 1.2;
+                for (let p of allPlayers) {
+                    const d = Math.hypot(p.position.x - world.x, p.position.z - world.z);
+                    if (d < minDist) {
+                        minDist = d;
+                        selected = p;
+                    }
+                }
+                if (selected) controlled = selected;
+                else {
+                    dragTarget = world;
+                    isDragging = true;
                 }
             }
-            if (closest) {
-                controlledPlayer = closest;
-            } else {
-                // move controlled player to touch
-                targetWorld = world;
-                isDragging = true;
-            }
         });
-        
         renderer.domElement.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            const touch = e.touches[0];
-            const world = getWorldCoordsFromTouch(touch.clientX, touch.clientY);
-            targetWorld = world;
-            isDragging = true;
+            if (isDragging) {
+                const touch = e.touches[0];
+                const world = getGroundFromScreen(touch.clientX, touch.clientY);
+                if (world) dragTarget = world;
+            }
         });
-        
         renderer.domElement.addEventListener('touchend', () => {
             isDragging = false;
+            dragTarget = null;
         });
-        
-        // Mouse for debugging
+        // Mouse fallback
         renderer.domElement.addEventListener('mousedown', (e) => {
-            const world = getWorldCoordsFromTouch(e.clientX, e.clientY);
-            let closest = null;
-            let closestDist = 1.5;
-            for (let p of players) {
-                const dist = Math.hypot(p.position.x - world.x, p.position.z - world.z);
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closest = p;
+            const world = getGroundFromScreen(e.clientX, e.clientY);
+            if (world) {
+                let selected = null;
+                let minDist = 1.2;
+                for (let p of allPlayers) {
+                    const d = Math.hypot(p.position.x - world.x, p.position.z - world.z);
+                    if (d < minDist) { minDist = d; selected = p; }
                 }
+                if (selected) controlled = selected;
+                else { dragTarget = world; isDragging = true; }
             }
-            if (closest) controlledPlayer = closest;
-            else { targetWorld = world; isDragging = true; }
         });
         window.addEventListener('mousemove', (e) => {
             if (isDragging && e.buttons === 1) {
-                const world = getWorldCoordsFromTouch(e.clientX, e.clientY);
-                targetWorld = world;
+                const world = getGroundFromScreen(e.clientX, e.clientY);
+                if (world) dragTarget = world;
             }
         });
-        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mouseup', () => { isDragging = false; dragTarget = null; });
         
-        // AI for other players
+        // AI movement for other players
         function updateAI() {
-            for (let p of players) {
-                if (p === controlledPlayer) continue;
+            for (let p of allPlayers) {
+                if (p === controlled) continue;
                 const dx = ballPos.x - p.position.x;
                 const dz = ballPos.z - p.position.z;
                 const dist = Math.hypot(dx, dz);
-                if (dist < 3.5) {
-                    // move toward ball
-                    const move = 0.07;
+                if (dist < 4.0) {
+                    const move = 0.06;
                     p.position.x += (dx / dist) * move;
                     p.position.z += (dz / dist) * move;
                 } else {
-                    // return to formation (simple)
-                    const orig = p.userData.origPos || { x: p.position.x, z: p.position.z };
-                    if (!p.userData.origPos) p.userData.origPos = { x: p.position.x, z: p.position.z };
-                    const dxr = p.userData.origPos.x - p.position.x;
-                    const dzr = p.userData.origPos.z - p.position.z;
+                    // return to formation
+                    const orig = p.userData;
+                    const dxr = orig.origX - p.position.x;
+                    const dzr = orig.origZ - p.position.z;
                     const distr = Math.hypot(dxr, dzr);
                     if (distr > 0.1) {
-                        p.position.x += (dxr / distr) * 0.04;
-                        p.position.z += (dzr / distr) * 0.04;
+                        p.position.x += (dxr / distr) * 0.045;
+                        p.position.z += (dzr / distr) * 0.045;
                     }
                 }
-                // boundary limit
-                p.position.x = Math.min(Math.max(p.position.x, -pitchLength/2 + 0.6), pitchLength/2 - 0.6);
-                p.position.z = Math.min(Math.max(p.position.z, -pitchWidth/2 + 0.6), pitchWidth/2 - 0.6);
+                // bounds
+                p.position.x = Math.min(Math.max(p.position.x, -fieldL/2 + 0.7), fieldL/2 - 0.7);
+                p.position.z = Math.min(Math.max(p.position.z, -fieldW/2 + 0.7), fieldW/2 - 0.7);
                 
                 // collision with ball
-                const ballDist = Math.hypot(p.position.x - ballPos.x, p.position.z - ballPos.z);
-                if (ballDist < 0.55 && p !== controlledPlayer) {
-                    const angle = Math.atan2(ballPos.z - p.position.z, ballPos.x - p.position.x);
-                    ballVel.x += Math.cos(angle) * 0.8;
-                    ballVel.z += Math.sin(angle) * 0.8;
+                const bdist = Math.hypot(p.position.x - ballPos.x, p.position.z - ballPos.z);
+                if (bdist < 0.55 && p !== controlled) {
+                    const ang = Math.atan2(ballPos.z - p.position.z, ballPos.x - p.position.x);
+                    ballVel.x += Math.cos(ang) * 0.85;
+                    ballVel.z += Math.sin(ang) * 0.85;
                 }
             }
         }
         
-        // Controlled player movement
+        // Controlled movement
         function updateControlled() {
-            if (isDragging) {
-                const speed = sprinting ? 0.18 : 0.12;
-                let dx = targetWorld.x - controlledPlayer.position.x;
-                let dz = targetWorld.z - controlledPlayer.position.z;
+            if (isDragging && dragTarget) {
+                const speed = sprinting ? 0.22 : 0.145;
+                let dx = dragTarget.x - controlled.position.x;
+                let dz = dragTarget.z - controlled.position.z;
                 const dist = Math.hypot(dx, dz);
-                if (dist > 0.1) {
-                    controlledPlayer.position.x += (dx / dist) * speed;
-                    controlledPlayer.position.z += (dz / dist) * speed;
+                if (dist > 0.15) {
+                    controlled.position.x += (dx / dist) * speed;
+                    controlled.position.z += (dz / dist) * speed;
                 }
             }
             // boundaries
-            controlledPlayer.position.x = Math.min(Math.max(controlledPlayer.position.x, -pitchLength/2 + 0.6), pitchLength/2 - 0.6);
-            controlledPlayer.position.z = Math.min(Math.max(controlledPlayer.position.z, -pitchWidth/2 + 0.6), pitchWidth/2 - 0.6);
+            controlled.position.x = Math.min(Math.max(controlled.position.x, -fieldL/2 + 0.7), fieldL/2 - 0.7);
+            controlled.position.z = Math.min(Math.max(controlled.position.z, -fieldW/2 + 0.7), fieldW/2 - 0.7);
             
-            // Ball collision for controlled player
-            const ballDist = Math.hypot(controlledPlayer.position.x - ballPos.x, controlledPlayer.position.z - ballPos.z);
-            if (ballDist < 0.55) {
-                const angle = Math.atan2(ballPos.z - controlledPlayer.position.z, ballPos.x - controlledPlayer.position.x);
-                let power = sprinting ? 1.4 : 0.9;
-                ballVel.x += Math.cos(angle) * power;
-                ballVel.z += Math.sin(angle) * power;
-                // small kick sound (simulate)
+            const bdist = Math.hypot(controlled.position.x - ballPos.x, controlled.position.z - ballPos.z);
+            if (bdist < 0.55) {
+                const ang = Math.atan2(ballPos.z - controlled.position.z, ballPos.x - controlled.position.x);
+                let power = sprinting ? 1.5 : 0.95;
+                ballVel.x += Math.cos(ang) * power;
+                ballVel.z += Math.sin(ang) * power;
             }
         }
         
         // Actions
-        function shoot() {
-            if (shootCooldown > 0) return;
-            const angle = Math.atan2(ballPos.z - controlledPlayer.position.z, ballPos.x - controlledPlayer.position.x);
-            const power = sprinting ? 2.8 : 1.8;
-            ballVel.x += Math.cos(angle) * power;
-            ballVel.z += Math.sin(angle) * power;
-            shootCooldown = 25;
+        function shootAction() {
+            if (shootCd > 0) return;
+            const ang = Math.atan2(ballPos.z - controlled.position.z, ballPos.x - controlled.position.x);
+            const power = sprinting ? 3.0 : 2.0;
+            ballVel.x += Math.cos(ang) * power;
+            ballVel.z += Math.sin(ang) * power;
+            shootCd = 22;
         }
-        
-        function pass() {
-            if (shootCooldown > 0) return;
+        function passAction() {
+            if (shootCd > 0) return;
             // find nearest teammate
-            let teammate = null;
-            let minDist = 8;
-            for (let p of players) {
-                if (p !== controlledPlayer && p.userData.team === controlledPlayer.userData.team) {
-                    const d = Math.hypot(p.position.x - controlledPlayer.position.x, p.position.z - controlledPlayer.position.z);
-                    if (d < minDist && d > 0.5) {
-                        minDist = d;
-                        teammate = p;
+            let target = null;
+            let minD = 100;
+            for (let p of allPlayers) {
+                if (p !== controlled && p.userData.team === controlled.userData.team) {
+                    const d = Math.hypot(p.position.x - controlled.position.x, p.position.z - controlled.position.z);
+                    if (d < minD && d > 0.5 && d < 9) {
+                        minD = d;
+                        target = p;
                     }
                 }
             }
-            if (teammate) {
-                const angle = Math.atan2(teammate.position.z - controlledPlayer.position.z, teammate.position.x - controlledPlayer.position.x);
-                ballVel.x += Math.cos(angle) * 1.9;
-                ballVel.z += Math.sin(angle) * 1.9;
-                shootCooldown = 18;
+            if (target) {
+                const ang = Math.atan2(target.position.z - controlled.position.z, target.position.x - controlled.position.x);
+                ballVel.x += Math.cos(ang) * 2.2;
+                ballVel.z += Math.sin(ang) * 2.2;
+                shootCd = 16;
             } else {
                 // forward pass
-                const angle = controlledPlayer.userData.team === 'home' ? 0 : Math.PI;
-                ballVel.x += Math.cos(angle) * 2.2;
-                ballVel.z += (Math.random() - 0.5) * 0.8;
-                shootCooldown = 18;
+                const ang = controlled.userData.team === 'home' ? 0 : Math.PI;
+                ballVel.x += Math.cos(ang) * 2.4;
+                ballVel.z += (Math.random() - 0.5) * 1.0;
+                shootCd = 16;
             }
         }
         
-        // Button events
+        document.getElementById('shootBtn').addEventListener('click', shootAction);
+        document.getElementById('passBtn').addEventListener('click', passAction);
         document.getElementById('sprintBtn').addEventListener('mousedown', () => sprinting = true);
         document.getElementById('sprintBtn').addEventListener('mouseup', () => sprinting = false);
         document.getElementById('sprintBtn').addEventListener('touchstart', (e) => { e.preventDefault(); sprinting = true; });
         document.getElementById('sprintBtn').addEventListener('touchend', (e) => { e.preventDefault(); sprinting = false; });
-        document.getElementById('shootBtn').addEventListener('click', shoot);
-        document.getElementById('passBtn').addEventListener('click', pass);
         
-        // Camera that follows the action (broadcast style)
-        function updateCamera() {
-            const targetX = Math.min(Math.max(ballPos.x, -10), 10);
-            camera.position.x += (targetX * 0.5 - camera.position.x) * 0.05;
-            camera.position.y = 7.5;
-            camera.position.z = 14;
-            camera.lookAt(ballPos.x, 0, ballPos.z);
-        }
-        
-        // Physics update
-        function updateBall() {
+        // Update ball physics
+        function updateBallPhysics() {
             ballVel.x *= 0.99;
             ballVel.z *= 0.99;
             ballPos.x += ballVel.x;
             ballPos.z += ballVel.z;
             // boundaries
-            if (ballPos.x < -pitchLength/2 - 0.3) ballPos.x = -pitchLength/2 - 0.3, ballVel.x *= -0.6;
-            if (ballPos.x > pitchLength/2 + 0.3) ballPos.x = pitchLength/2 + 0.3, ballVel.x *= -0.6;
-            if (ballPos.z < -pitchWidth/2 - 0.3) ballPos.z = -pitchWidth/2 - 0.3, ballVel.z *= -0.6;
-            if (ballPos.z > pitchWidth/2 + 0.3) ballPos.z = pitchWidth/2 + 0.3, ballVel.z *= -0.6;
-            
+            if (ballPos.x < -fieldL/2 - 0.3) ballPos.x = -fieldL/2 - 0.3, ballVel.x *= -0.6;
+            if (ballPos.x > fieldL/2 + 0.3) ballPos.x = fieldL/2 + 0.3, ballVel.x *= -0.6;
+            if (ballPos.z < -fieldW/2 - 0.3) ballPos.z = -fieldW/2 - 0.3, ballVel.z *= -0.6;
+            if (ballPos.z > fieldW/2 + 0.3) ballPos.z = fieldW/2 + 0.3, ballVel.z *= -0.6;
             ball.position.x = ballPos.x;
             ball.position.z = ballPos.z;
             
             // Goal detection
-            if (ballPos.x > pitchLength/2 + 0.2 && Math.abs(ballPos.z) < 1.2) {
+            if (ballPos.x > fieldL/2 + 0.2 && Math.abs(ballPos.z) < 1.2) {
                 homeScore++;
-                scoreHomeEl.textContent = homeScore;
-                resetBall();
+                scoreHome.textContent = homeScore;
+                triggerGoalEffect();
+                resetMatch();
             }
-            if (ballPos.x < -pitchLength/2 - 0.2 && Math.abs(ballPos.z) < 1.2) {
+            if (ballPos.x < -fieldL/2 - 0.2 && Math.abs(ballPos.z) < 1.2) {
                 awayScore++;
-                scoreAwayEl.textContent = awayScore;
-                resetBall();
+                scoreAway.textContent = awayScore;
+                triggerGoalEffect();
+                resetMatch();
             }
         }
         
-        function resetBall() {
+        function triggerGoalEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'goal-effect';
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 600);
+            // simple possession update
+            possessionDiv.style.animation = 'none';
+            setTimeout(() => possessionDiv.style.animation = '', 10);
+        }
+        
+        function resetMatch() {
             ballPos = { x: 0, z: 0 };
             ballVel = { x: 0, z: 0 };
-            // reset players to original positions
-            for (let i = 0; i < homePlayers.length; i++) {
-                homePlayers[i].position.set(homePositions[i].x, 0, homePositions[i].z);
-                homePlayers[i].userData.origPos = { x: homePositions[i].x, z: homePositions[i].z };
+            for (let i = 0; i < homeTeam.length; i++) {
+                homeTeam[i].position.set(homePos[i].x, 0, homePos[i].z);
             }
-            for (let i = 0; i < awayPlayers.length; i++) {
-                awayPlayers[i].position.set(awayPositions[i].x, 0, awayPositions[i].z);
-                awayPlayers[i].userData.origPos = { x: awayPositions[i].x, z: awayPositions[i].z };
+            for (let i = 0; i < awayTeam.length; i++) {
+                awayTeam[i].position.set(awayPos[i].x, 0, awayPos[i].z);
             }
-            controlledPlayer = homePlayers[5];
+            controlled = homeTeam[9];
+            shootCd = 0;
         }
         
-        // Simple animation: players' heads bob when moving
-        function animatePlayers() {
-            for (let p of players) {
-                const moving = Math.hypot(p.position.x - (p.userData.lastX || 0), p.position.z - (p.userData.lastZ || 0)) > 0.01;
-                if (moving) {
-                    const bob = Math.sin(Date.now() * 0.012) * 0.01;
-                    p.children[1].position.y = 0.85 + bob;
-                } else {
-                    p.children[1].position.y = 0.85;
-                }
-                p.userData.lastX = p.position.x;
-                p.userData.lastZ = p.position.z;
+        // Camera follow (dynamic)
+        let camOffsetX = 0;
+        function updateCamera() {
+            const targetX = ballPos.x * 0.3;
+            camOffsetX += (targetX - camOffsetX) * 0.05;
+            camera.position.x = camOffsetX;
+            camera.position.y = 7.2;
+            camera.position.z = 13.5;
+            camera.lookAt(ballPos.x, 0, ballPos.z);
+        }
+        
+        // Simple animation: idle breathing
+        let time = 0;
+        function animatePlayersIdle() {
+            time += 0.02;
+            for (let p of allPlayers) {
+                // slight head bob
+                const head = p.children.find(c => c.geometry && c.geometry.type === 'SphereGeometry' && c.position.y === 0.92);
+                if (head) head.position.y = 0.92 + Math.sin(time * 2.5) * 0.003;
             }
         }
         
-        // Animation loop
-        function animate() {
-            if (shootCooldown > 0) shootCooldown--;
-            updateBall();
+        // Main loop
+        let lastTimestamp = 0;
+        function gameLoop() {
+            if (shootCd > 0) shootCd--;
+            updateBallPhysics();
             updateControlled();
             updateAI();
             updateCamera();
-            animatePlayers();
+            animatePlayersIdle();
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
-            requestAnimationFrame(animate);
+            requestAnimationFrame(gameLoop);
         }
         
-        resetBall();
-        animate();
+        resetMatch();
+        gameLoop();
+        
+        // prevent context menu on canvas
+        renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     </script>
 </body>
-</html>
+    </html>
