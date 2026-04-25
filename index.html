@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>⚽ PRO SOCCER | Controller + WiFi + Penalty</title>
+    <style>
+        * {
+            touch-action: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0a2f1a, #051a0a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+        }
+        .mode-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 6px;
+            background: #000000aa;
+            backdrop-filter: blur(10px);
+            padding: 5px 10px;
+            border-radius: 50px;
+        }
+        .mode-btn {
+            background: #2c3e2c;
+            border: none;
+            color: white;
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .mode-btn.active {
+            background: #f39c12;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            background: #000000aa;
+            backdrop-filter: blur(10px);
+            padding: 4px 15px;
+            border-radius: 60px;
+            margin-bottom: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        .score {
+            font-size: 1.5rem;
+            background: #111;
+            padding: 0 15px;
+            border-radius: 40px;
+            font-family: monospace;
+        }
+        .penalty-series {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 3px;
+            font-size: 1rem;
+        }
+        .penalty-dot {
+            width: 25px;
+            height: 25px;
+            border-radius: 25px;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .penalty-dot.scored-p1 { background: #3a86ff; color: white; }
+        .penalty-dot.missed-p1 { background: #1a2a4a; color: #888; }
+        .penalty-dot.scored-p2 { background: #e63946; color: white; }
+        .penalty-dot.missed-p2 { background: #4a1a2a; color: #888; }
+        
+        /* Main game area */
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        canvas {
+            display: block;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px black;
+            background: #1e6b3b;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 900 / 550;
+            touch-action: none;
+        }
+        
+        /* CONTROLLER PANEL */
+        .controller {
+            background: #000000cc;
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 10px 12px;
+            margin-top: 10px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+        .ctrl-btn {
+            background: radial-gradient(circle at 30% 20%, #3a3a3a, #1a1a1a);
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 14px;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            box-shadow: 0 4px 0 #00000066;
+            transition: 0.03s linear;
+            cursor: pointer;
+            touch-action: manipulation;
+            min-width: 65px;
+            letter-spacing: 0.5px;
+        }
+        .ctrl-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #00000066;
+        }
+        .ctrl-btn.special {
+            background: radial-gradient(circle at 30% 20%, #e67e22, #a04000);
+        }
+        .ctrl-btn.shoot {
+            background: radial-gradient(circle at 30% 20%, #e63946, #8b0000);
+        }
+        .ctrl-btn.pass {
+            background: radial-gradient(circle at 30% 20%, #2ecc71, #1e6b3b);
+        }
+        .ctrl-btn.sprint {
+            background: radial-gradient(circle at 30% 20%, #f1c40f, #b8860b);
+            color: black;
+        }
+        .ctrl-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .wifi-panel {
+            background: #000000aa;
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            padding: 6px 10px;
+            margin-top: 8px;
+            text-align: center;
+            width: 100%;
+            font-size: 0.7rem;
+            color: white;
+        }
+        .wifi-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        .wifi-btn {
+            background: #2c6e2c;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+        .status {
+            font-family: monospace;
+            font-size: 0.65rem;
+            margin-top: 4px;
+        }
+        @media (max-width: 550px) {
+            .ctrl-btn { padding: 6px 10px; min-width: 55px; font-size: 0.65rem; }
+            .score { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="mode-bar">
+        <button class="mode-btn active" id="modeNormalBtn">⚽ NORMAL</button>
+        <button class="mode-btn" id="modePenaltyBtn">🎯 PENALTY (BEST OF 5)</button>
+    </div>
+    <div class="scoreboard">
+        <span>🔵 P1</span>
+        <div class="score" id="scoreDisplay">0 : 0</div>
+        <span>🔴 P2</span>
+    </div>
+    <div class="penalty-series" id="penaltySeriesDisplay"></div>
+    
+    <div class="game-area">
+        <canvas id="gameCanvas" width="900" height="550"></canvas>
+        
+        <!-- FULL CONTROLLER -->
+        <div class="controller">
+            <div class="ctrl-row">
+                <button class="ctrl-btn" id="dribbleBtn">🏃 DRIBBLE</button>
+                <button class="ctrl-btn sprint" id="sprintBtn">⚡ SPRINT</button>
+                <button class="ctrl-btn pass" id="passBtn">↗️ PASS</button>
+                <button class="ctrl-btn pass" id="loftedPassBtn">🕊️ LOFTED PASS</button>
+            </div>
+            <div class="ctrl-row">
+                <button class="ctrl-btn shoot" id="shootBtn">🎯 SHOOT</button>
+                <button class="ctrl-btn special" id="loftedShootBtn">🌟 LOFTED SHOT</button>
+                <button class="ctrl-btn special" id="hardShootBtn">💥 HARD SHOT</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="wifi-panel">
+        <div>📡 WIFI 2-PLAYER</div>
+        <div class="wifi-buttons">
+            <button class="wifi-btn" id="createRoomBtn">🎮 HOST</button>
+            <button class="wifi-btn" id="joinRoomBtn">📱 JOIN</button>
+        </div>
+        <div class="status" id="connectionStatus">⚪ Not connected</div>
+        <div style="font-size:0.65rem;">👆 Touch field = move | Buttons = actions</div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- AUDIO ----------
+        let audioCtx = null;
+        function initAudio() {
+            if(audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playTone(freq, dur, vol=0.25) {
+            if(!audioCtx) initAudio();
+            if(audioCtx.state === 'suspended') audioCtx.resume().then(()=>{playTone(freq,dur,vol);});
+            else {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                gain.gain.value = vol;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur);
+                osc.stop(audioCtx.currentTime + dur);
+            }
+        }
+        function playKick() { playTone(180, 0.08, 0.2); }
+        function playHardKick() { playTone(100, 0.1, 0.3); playTone(80, 0.12, 0.25); }
+        function playPass() { playTone(440, 0.05, 0.15); }
+        function playLoft() { playTone(660, 0.07, 0.2); playTone(880, 0.1, 0.15); }
+        function playGoal() { playTone(880,0.12,0.4); setTimeout(()=>playTone(1100,0.15,0.4),100); setTimeout(()=>playTone(1320,0.2,0.5),220); }
+        function playMiss() { playTone(150,0.2,0.25); setTimeout(()=>playTone(120,0.25,0.2),120); }
+        function playCheer() { playTone(660,0.1,0.3); setTimeout(()=>playTone(880,0.1,0.3),120); setTimeout(()=>playTone(1046,0.2,0.3),240); }
+        
+        // ---------- CANVAS ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const LOGIC_W = 900, LOGIC_H = 550;
+        canvas.width = LOGIC_W; canvas.height = LOGIC_H;
+        
+        // Game state
+        let gameMode = "normal";
+        let scores = { p1: 0, p2: 0 };
+        let penaltyHistory = [];
+        let currentPenaltyTaker = 1;
+        let penaltyPhase = "waiting";
+        let penaltyWinner = null;
+        
+        // Players & ball
+        let ball = { x: LOGIC_W/2, y: LOGIC_H/2, vx: 0, vy: 0, radius: 8 };
+        let player1 = { x: 150, y: LOGIC_H/2, radius: 14, sprintBoost: 1.0 };
+        let player2 = { x: LOGIC_W-150, y: LOGIC_H/2, radius: 14, sprintBoost: 1.0 };
+        const BASE_SPEED = 5.0;
+        let p1Target = { x: player1.x, y: player1.y };
+        let p2Target = { x: player2.x, y: player2.y };
+        
+        // Cooldowns
+        let shootCooldown = 0;
+        let goalCooldown = 0;
+        let sprintActiveP1 = false, sprintActiveP2 = false;
+        
+        // WiFi
+        let peerConnection = null, dataChannel = null, connected = false;
+        const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+        
+        // DOM
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const penaltySeriesDiv = document.getElementById('penaltySeriesDisplay');
+        const connectionStatusDiv = document.getElementById('connectionStatus');
+        
+        function updateScoreUI() { scoreDisplay.innerText = `${scores.p1} : ${scores.p2}`; }
+        
+        function updatePenaltyDisplay() {
+            if(gameMode !== "penalty") { penaltySeriesDiv.innerHTML = ""; return; }
+            let html = "";
+            for(let i=0; i<5; i++){
+                let p1Dot="", p2Dot="";
+                if(penaltyHistory[i]){
+                    if(penaltyHistory[i].taker===1) p1Dot = penaltyHistory[i].scored ? "✓" : "✗";
+                    else p2Dot = penaltyHistory[i].scored ? "✓" : "✗";
+                }
+                html += `<div style="display:flex; gap:4px;"><div class="penalty-dot ${p1Dot==='✓'?'scored-p1':(p1Dot==='✗'?'missed-p1':'')}">${p1Dot}</div><div style="color:white;">-</div><div class="penalty-dot ${p2Dot==='✓'?'scored-p2':(p2Dot==='✗'?'missed-p2':'')}">${p2Dot}</div></div>`;
+            }
+            penaltySeriesDiv.innerHTML = html;
+            if(penaltyWinner) penaltySeriesDiv.innerHTML += `<div style="color:gold;">🏆 P${penaltyWinner} WINS</div>`;
+        }
+        
+        // Physics helpers
+        function distance(a,b) { return Math.hypot(a.x-b.x, a.y-b.y); }
+        function collideCircle(c1,c2,r1,r2){
+            let dx = c1.x-c2.x, dy = c1.y-c2.y, dist = Math.hypot(dx,dy), min=r1+r2;
+            if(dist<min){
+                let ang = Math.atan2(dy,dx), overlap = min-dist;
+                c1.x += Math.cos(ang)*overlap*0.5;
+                c1.y += Math.sin(ang)*overlap*0.5;
+                c2.x -= Math.cos(ang)*overlap*0.5;
+                c2.y -= Math.sin(ang)*overlap*0.5;
+                return true;
+            } return false;
+        }
+        function applyBoundaries(){
+            ball.x = Math.min(Math.max(ball.x,ball.radius), LOGIC_W-ball.radius);
+            ball.y = Math.min(Math.max(ball.y,ball.radius), LOGIC_H-ball.radius);
+            player1.x = Math.min(Math.max(player1.x, player1.radius+5), LOGIC_W/2-20);
+            player1.y = Math.min(Math.max(player1.y, player1.radius+5), LOGIC_H-player1.radius-5);
+            player2.x = Math.min(Math.max(player2.x, LOGIC_W/2+20), LOGIC_W-player2.radius-5);
+            player2.y = Math.min(Math.max(player2.y, player2.radius+5), LOGIC_H-player2.radius-5);
+        }
+        
+        const LEFT_GOAL = { x:10, yMin:LOGIC_H/2-60, yMax:LOGIC_H/2+60 };
+        const RIGHT_GOAL = { x:LOGIC_W-40, yMin:LOGIC_H/2-60, yMax:LOGIC_H/2+60 };
+        function checkGoal(){
+            if(goalCooldown>0) return false;
+            if(ball.x+ball.radius>=RIGHT_GOAL.x && ball.y>RIGHT_GOAL.yMin && ball.y<RIGHT_GOAL.yMax){
+                scores.p2++; updateScoreUI(); playGoal(); resetAfterGoal(); goalCooldown=30; sendGameState(); return true;
+            } else if(ball.x-ball.radius<=LEFT_GOAL.x && ball.y>LEFT_GOAL.yMin && ball.y<LEFT_GOAL.yMax){
+                scores.p1++; updateScoreUI(); playGoal(); resetAfterGoal(); goalCooldown=30; sendGameState(); return true;
+            } return false;
+        }
+        function resetAfterGoal(){
+            ball.x=LOGIC_W/2; ball.y=LOGIC_H/2; ball.vx=0; ball.vy=0;
+            player1.x=150; player1.y=LOGIC_H/2; player2.x=LOGIC_W-150; player2.y=LOGIC_H/2;
+            p1Target={x:player1.x,y:player1.y}; p2Target={x:player2.x,y:player2.y};
+        }
+        
+        // ---------- CONTROLLER ACTIONS (with direction from current player to target or ball) ----------
+        function getPlayerDirection(player, targetX, targetY){
+            let dx = targetX - player.x, dy = targetY - player.y;
+            let len = Math.hypot(dx,dy);
+            if(len<0.1) return {dx:0, dy:0};
+            return {dx:dx/len, dy:dy/len};
+        }
+        
+        function actionShoot(player, power=8, isHard=false, isLofted=false){
+            if(shootCooldown>0) return;
+            let toBall = {dx: ball.x - player.x, dy: ball.y - player.y};
+            let distToBall = Math.hypot(toBall.dx, toBall.dy);
+            if(distToBall > player.radius+ball.radius+30) return;
+            let angle = Math.atan2(toBall.dy, toBall.dx);
+            let finalPower = isHard ? power*1.6 : (isLofted ? power*0.9 : power);
+            finalPower = Math.min(22, finalPower);
+            ball.vx += Math.cos(angle) * finalPower;
+            ball.vy += Math.sin(angle) * finalPower;
+            shootCooldown = 18;
+            if(isHard) playHardKick();
+            else if(isLofted) playLoft();
+            else playKick();
+            // recoil
+            player.x -= Math.cos(angle) * 7;
+            player.y -= Math.sin(angle) * 7;
+        }
+        
+        function actionPass(player){
+            if(shootCooldown>0) return;
+            let toBall = {dx: ball.x - player.x, dy: ball.y - player.y};
+            let distToBall = Math.hypot(toBall.dx, toBall.dy);
+            if(distToBall > player.radius+ball.radius+25) return;
+            let angle = Math.atan2(toBall.dy, toBall.dx);
+            let power = 5.5;
+            ball.vx += Math.cos(angle) * power;
+            ball.vy += Math.sin(angle) * power;
+            shootCooldown = 12;
+            playPass();
+        }
+        
+        function actionLoftedPass(player){
+            if(shootCooldown>0) return;
+            let toBall = {dx: ball.x - player.x, dy: ball.y - player.y};
+            let distToBall = Math.hypot(toBall.dx, toBall.dy);
+            if(distToBall > player.radius+ball.radius+25) return;
+            let angle = Math.atan2(toBall.dy, toBall.dx);
+            let power = 6.8;
+            ball.vx += Math.cos(angle) * power;
+            ball.vy += Math.sin(angle) * power * 0.7;
+            ball.vy -= 3.5; // slight arc
+            shootCooldown = 15;
+            playLoft();
+        }
+        
+        function actionDribble(player){
+            let toBall = {dx: ball.x - player.x, dy: ball.y - player.y};
+            let dist = Math.hypot(toBall.dx, toBall.dy);
+            if(dist < player.radius+ball.radius+25){
+                let angle = Math.atan2(toBall.dy, toBall.dx);
+                ball.vx += Math.cos(angle) * 3.2;
+                ball.vy += Math.sin(angle) * 3.2;
+                playKick();
+            }
+        }
+        
+        // Update player movement with sprint
+        function updatePlayers(){
+            let sp1 = sprintActiveP1 ? 1.7 : 1.0;
+            let sp2 = sprintActiveP2 ? 1.7 : 1.0;
+            let dx1 = p1Target.x - player1.x, dy1 = p1Target.y - player1.y, d1 = Math.hypot(dx1,dy1);
+            if(d1>0.5){
+                let move = Math.min(BASE_SPEED * sp1, d1 * 0.28);
+                player1.x += (dx1/d1) * move;
+                player1.y += (dy1/d1) * move;
+            }
+            let dx2 = p2Target.x - player2.x, dy2 = p2Target.y - player2.y, d2 = Math.hypot(dx2,dy2);
+            if(d2>0.5){
+                let move = Math.min(BASE_SPEED * sp2, d2 * 0.28);
+                player2.x += (dx2/d2) * move;
+                player2.y += (dy2/d2) * move;
+            }
+            // auto dribble when close
+            if(distance(player1,ball) < player1.radius+ball.radius+3){
+                let ang = Math.atan2(ball.y-player1.y, ball.x-player1.x);
+                ball.vx += Math.cos(ang)*2.2;
+                ball.vy += Math.sin(ang)*2.2;
+            }
+            if(distance(player2,ball) < player2.radius+ball.radius+3){
+                let ang = Math.atan2(ball.y-player2.y, ball.x-player2.x);
+                ball.vx += Math.cos(ang)*2.2;
+                ball.vy += Math.sin(ang)*2.2;
+            }
+        }
+        
+        // Penalty best-of-5
+        function checkPenaltyWinner(){
+            let p1sc=0, p2sc=0;
+            for(let p of penaltyHistory){
+                if(p.taker===1 && p.scored) p1sc++;
+                if(p.taker===2 && p.scored) p2sc++;
+            }
+            let remaining = 5 - penaltyHistory.length;
+            if(p1sc > p2sc+remaining){ penaltyWinner=1; playCheer(); return true; }
+            if(p2sc > p1sc+remaining){ penaltyWinner=2; playCheer(); return true; }
+            if(penaltyHistory.length===10){
+                if(p1sc>p2sc) penaltyWinner=1;
+                else if(p2sc>p1sc) penaltyWinner=2;
+                else penaltyWinner=0;
+                if(penaltyWinner && penaltyWinner!==0) playCheer();
+                return true;
+            }
+            return false;
+        }
+        function penaltyShoot(taker, dirY){
+            if(penaltyWinner) return;
+            let scored = Math.abs(dirY) < 58;
+            penaltyHistory.push({taker, scored});
+            if(scored){ if(taker===1) scores.p1++; else scores.p2++; playGoal(); }
+            else playMiss();
+            updateScoreUI(); updatePenaltyDisplay();
+            if(checkPenaltyWinner()) penaltyPhase="finished";
+            else { currentPenaltyTaker = (currentPenaltyTaker===1?2:1); penaltyPhase="waiting"; }
+            sendGameState();
+        }
+        
+        // Touch movement
+        function handleTouchMove(touchX, touchY){
+            let cx = Math.min(Math.max(touchX,10), LOGIC_W-10);
+            let cy = Math.min(Math.max(touchY,10), LOGIC_H-10);
+            if(cx < LOGIC_W/2) { p1Target.x = cx; p1Target.y = cy; }
+            else { p2Target.x = cx; p2Target.y = cy; }
+        }
+        
+        // Drawing
+        function drawField(){
+            ctx.clearRect(0,0,LOGIC_W,LOGIC_H);
+            ctx.fillStyle="#2e8b57"; ctx.fillRect(0,0,LOGIC_W,LOGIC_H);
+            ctx.strokeStyle="white"; ctx.lineWidth=3;
+            ctx.beginPath(); ctx.moveTo(LOGIC_W/2,0); ctx.lineTo(LOGIC_W/2,LOGIC_H); ctx.stroke();
+            ctx.beginPath(); ctx.arc(LOGIC_W/2, LOGIC_H/2,45,0,Math.PI*2); ctx.stroke();
+            ctx.fillStyle="#00000099";
+            ctx.fillRect(LEFT_GOAL.x-8, LEFT_GOAL.yMin-15,16,90);
+            ctx.fillRect(RIGHT_GOAL.x, RIGHT_GOAL.yMin-15,16,90);
+            ctx.fillStyle="white"; ctx.font="bold 12px monospace";
+            ctx.fillText("GOAL",LEFT_GOAL.x-25,LOGIC_H/2);
+            ctx.fillText("GOAL",RIGHT_GOAL.x+12,LOGIC_H/2);
+            if(gameMode==="penalty" && penaltyPhase==="waiting" && !penaltyWinner)
+                ctx.fillText(`⚽ P${currentPenaltyTaker} SWIPE ⚽`, LOGIC_W/2-100,50);
+            else if(gameMode==="penalty" && penaltyWinner)
+                ctx.fillText(`🏆 P${penaltyWinner} WINS! 🏆`, LOGIC_W/2-100,60);
+        }
+        function drawPlayers(){
+            ctx.beginPath(); ctx.arc(player1.x,player1.y,player1.radius-1,0,Math.PI*2);
+            ctx.fillStyle="#3a86ff"; ctx.fill(); ctx.fillStyle="white"; ctx.fillText("P1",player1.x-9,player1.y+5);
+            if(sprintActiveP1){ ctx.beginPath(); ctx.arc(player1.x-5,player1.y-8,5,0,Math.PI*2); ctx.fillStyle="#f1c40f"; ctx.fill(); }
+            ctx.beginPath(); ctx.arc(player2.x,player2.y,player2.radius-1,0,Math.PI*2);
+            ctx.fillStyle="#e63946"; ctx.fill(); ctx.fillText("P2",player2.x-9,player2.y+5);
+            if(sprintActiveP2){ ctx.beginPath(); ctx.arc(player2.x-5,player2.y-8,5,0,Math.PI*2); ctx.fillStyle="#f1c40f"; ctx.fill(); }
+            ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
+            ctx.fillStyle="#ffcc44"; ctx.fill(); ctx.fillStyle="black"; ctx.fillText("⚽",ball.x-6,ball.y+5);
+        }
+        
+        // ---------- NETWORK ----------
+        function sendGameState(){
+            if(!connected || !dataChannel || dataChannel.readyState!=="open") return;
+            dataChannel.send(JSON.stringify({scores, ball, p1:player1, p2:player2, gameMode, penaltyHistory, currentPenaltyTaker, penaltyPhase, penaltyWinner}));
+        }
+        function receiveGameState(data){
+            try{
+                let s=JSON.parse(data);
+                scores=s.scores; ball=s.ball; player1=s.p1; player2=s.p2; gameMode=s.gameMode;
+                penaltyHistory=s.penaltyHistory||[]; currentPenaltyTaker=s.currentPenaltyTaker; penaltyPhase=s.penaltyPhase; penaltyWinner=s.penaltyWinner;
+                updateScoreUI(); updatePenaltyDisplay();
+            }catch(e){}
+        }
+        async function createRoom(){
+            initAudio();
+            peerConnection=new RTCPeerConnection(config);
+            dataChannel=peerConnection.createDataChannel("game");
+            dataChannel.onopen=()=>{ connected=true; connectionStatusDiv.innerText="✅ CONNECTED!"; };
+            dataChannel.onmessage=(e)=>receiveGameState(e.data);
+            let offer=await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            navigator.clipboard.writeText(JSON.stringify(offer));
+            connectionStatusDiv.innerText="📋 Offer copied! Send to other device.";
+        }
+        async function joinRoom(){
+            initAudio();
+            let code=prompt("Paste offer code:");
+            if(!code) return;
+            let offer=JSON.parse(code);
+            peerConnection=new RTCPeerConnection(config);
+            peerConnection.ondatachannel=(e)=>{
+                dataChannel=e.channel;
+                dataChannel.onopen=()=>{ connected=true; connectionStatusDiv.innerText="✅ CONNECTED!"; };
+                dataChannel.onmessage=(e)=>receiveGameState(e.data);
+            };
+            await peerConnection.setRemoteDescription(offer);
+            let answer=await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            connectionStatusDiv.innerText="Joining...";
+        }
+        
+        // Touch events
+        let activeTouchId=null;
+        canvas.addEventListener('touchstart',(e)=>{
+            e.preventDefault(); initAudio();
+            let touch=e.touches[0];
+            let rect=canvas.getBoundingClientRect();
+            let x=(touch.clientX-rect.left)*(LOGIC_W/rect.width);
+            let y=(touch.clientY-rect.top)*(LOGIC_H/rect.height);
+            handleTouchMove(x,y);
+            activeTouchId=touch.identifier;
+        });
+        canvas.addEventListener('touchmove',(e)=>{
+            e.preventDefault();
+            for(let i=0;i<e.touches.length;i++){
+                if(e.touches[i].identifier===activeTouchId){
+                    let rect=canvas.getBoundingClientRect();
+                    let x=(e.touches[i].clientX-rect.left)*(LOGIC_W/rect.width);
+                    let y=(e.touches[i].clientY-rect.top)*(LOGIC_H/rect.height);
+                    handleTouchMove(x,y);
+                    break;
+                }
+            }
+        });
+        canvas.addEventListener('touchend',()=>{ activeTouchId=null; });
+        
+        // Button actions (with current player side based on who is touching? We apply to both if local? Better: apply to player1 or based on ball possession? Simpler: buttons affect current controlled player based on field side? We'll make buttons apply to player who has ball proximity or left=player1, right=player2)
+        function getClosestPlayer(){
+            let d1=distance(player1,ball);
+            let d2=distance(player2,ball);
+            return d1<d2 ? player1 : player2;
+        }
+        document.getElementById('shootBtn').addEventListener('click',()=>{ let p=getClosestPlayer(); actionShoot(p,8,false,false); sendGameState(); });
+        document.getElementById('hardShootBtn').addEventListener('click',()=>{ let p=getClosestPlayer(); actionShoot(p,12,true,false); sendGameState(); });
+        document.getElementById('loftedShootBtn').addEventListener('click',()=>{ let p=getClosestPlayer(); actionShoot(p,7,false,true); sendGameState(); });
+        document.getElementById('passBtn').addEventListener('click',()=>{ actionPass(getClosestPlayer()); sendGameState(); });
+        document.getElementById('loftedPassBtn').addEventListener('click',()=>{ actionLoftedPass(getClosestPlayer()); sendGameState(); });
+        document.getElementById('dribbleBtn').addEventListener('click',()=>{ actionDribble(getClosestPlayer()); sendGameState(); });
+        document.getElementById('sprintBtn').addEventListener('mousedown',()=>{ sprintActiveP1=true; sprintActiveP2=true; });
+        document.getElementById('sprintBtn').addEventListener('mouseup',()=>{ sprintActiveP1=false; sprintActiveP2=false; });
+        document.getElementById('sprintBtn').addEventListener('touchstart',(e)=>{ e.preventDefault(); sprintActiveP1=true; sprintActiveP2=true; });
+        document.getElementById('sprintBtn').addEventListener('touchend',(e)=>{ e.preventDefault(); sprintActiveP1=false; sprintActiveP2=false; });
+        
+        // Mode switching
+        function setNormal(){
+            gameMode="normal"; scores={p1:0,p2:0}; penaltyWinner=null; penaltyHistory=[];
+            resetAfterGoal(); updateScoreUI(); updatePenaltyDisplay();
+            document.getElementById('modeNormalBtn').classList.add('active');
+            document.getElementById('modePenaltyBtn').classList.remove('active');
+            sendGameState();
+        }
+        function setPenalty(){
+            gameMode="penalty"; scores={p1:0,p2:0}; penaltyHistory=[]; penaltyWinner=null; currentPenaltyTaker=1; penaltyPhase="waiting";
+            updateScoreUI(); updatePenaltyDisplay();
+            document.getElementById('modePenaltyBtn').classList.add('active');
+            document.getElementById('modeNormalBtn').classList.remove('active');
+            sendGameState();
+        }
+        document.getElementById('modeNormalBtn').addEventListener('click',setNormal);
+        document.getElementById('modePenaltyBtn').addEventListener('click',setPenalty);
+        document.getElementById('createRoomBtn').addEventListener('click',createRoom);
+        document.getElementById('joinRoomBtn').addEventListener('click',joinRoom);
+        
+        // Penalty swipe (on canvas)
+        let penaltySwipeStart=null;
+        canvas.addEventListener('touchstart',(e)=>{
+            if(gameMode==="penalty" && penaltyPhase==="waiting" && !penaltyWinner){
+                let rect=canvas.getBoundingClientRect();
+                let y=(e.touches[0].clientY-rect.top)*(LOGIC_H/rect.height);
+                penaltySwipeStart=y;
+            }
+        });
+        canvas.addEventListener('touchend',(e)=>{
+            if(gameMode==="penalty" && penaltyPhase==="waiting" && penaltySwipeStart!==null && !penaltyWinner){
+                let rect=canvas.getBoundingClientRect();
+                let yEnd=(e.changedTouches[0].clientY-rect.top)*(LOGIC_H/rect.height);
+                let deltaY = yEnd - penaltySwipeStart;
+                penaltyShoot(currentPenaltyTaker, deltaY);
+                sendGameState();
+                penaltySwipeStart=null;
+            }
+        });
+        
+        // Game loop
+        function gameLoop(){
+            if(goalCooldown>0) goalCooldown--;
+            if(shootCooldown>0) shootCooldown--;
+            if(gameMode==="normal"){
+                updatePlayers();
+                collideCircle(player1,ball,player1.radius,ball.radius);
+                collideCircle(player2,ball,player2.radius,ball.radius);
+                collideCircle(player1,player2,player1.radius,player2.radius);
+                applyBoundaries();
+                ball.x+=ball.vx; ball.y+=ball.vy;
+                checkGoal();
+            }
+            drawField(); drawPlayers();
+            requestAnimationFrame(gameLoop);
+        }
+        resetAfterGoal(); gameLoop();
+    })();
+</script>
+</body>
+</html>
